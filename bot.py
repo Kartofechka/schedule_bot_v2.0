@@ -11,7 +11,7 @@ import subprocess
 import sys
 import os
 
-TOKEN = "8022446939:AAF0Ivz9sBP0QGh--ZC2VRZp7abDxonL1aQ"
+TOKEN = ""
 
 # Попробуем установить русскую локаль для корректного отображения месяцев
 try:

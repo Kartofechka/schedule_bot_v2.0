@@ -10,6 +10,17 @@ import locale
 import subprocess
 import sys
 import os
+import socket
+
+
+_original_getaddrinfo = socket.getaddrinfo
+
+def _ipv4_only_getaddrinfo(*args, **kwargs):
+    results = _original_getaddrinfo(*args, **kwargs)
+    return [r for r in results if r[0] == socket.AF_INET]
+
+socket.getaddrinfo = _ipv4_only_getaddrinfo
+
 
 TOKEN = ""
 
@@ -748,7 +759,13 @@ async def handle_message_selecting_day(update: Update, context: ContextTypes.DEF
 # ============================================================
 
 def main():
-    application = Application.builder().token(token=TOKEN).build()
+    application = Application.builder() \
+        .token(token=TOKEN) \
+        .connect_timeout(60) \
+        .read_timeout(60) \
+        .write_timeout(60) \
+        .pool_timeout(60) \
+        .build()
     
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -769,7 +786,14 @@ def main():
     
     print("✅ Бот запущен...")
     print(f"📅 Текущая дата: {get_current_schedule_date()}")
-    application.run_polling()
+    application.run_polling(
+        drop_pending_updates=True,
+        timeout=60,
+        connect_timeout=60,
+        read_timeout=60,
+        write_timeout=60,
+        pool_timeout=60
+    )
 
 if __name__ == '__main__':
     main()
